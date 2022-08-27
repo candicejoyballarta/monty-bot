@@ -1,0 +1,36 @@
+{
+  "name": "monty-bot",
+  "version": "1.0.0",
+  "description": "A custom discord bot for LORNA AND SHABUHAN Discord Server",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/candicejoyballarta/monty-bot.git"
+  },
+  "keywords": [
+    "discordjs",
+    "v14",
+    "discordbot",
+    "knk"
+  ],
+  "author": "yvesmotions",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/candicejoyballarta/monty-bot/issues"
+  },
+  "homepage": "https://github.com/candicejoyballarta/monty-bot#readme",
+  "dependencies": {
+    "@discordjs/rest": "^1.0.1",
+    "@types/node": "^18.7.13",
+    "chalk": "^4.1.2",
+    "discord-api-types": "^0.37.3",
+    "discord.js": "^14.2.0",
+    "dotenv": "^16.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
