@@ -3,7 +3,13 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const { connect } = require('mongoose');
 
-const client = new Client({ intents: GatewayIntentBits.Guilds });
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMembers,
+	],
+});
 client.commands = new Collection();
 client.buttons = new Collection();
 client.commandArray = [];
