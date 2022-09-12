@@ -73,6 +73,10 @@ module.exports = {
 		}
 
 		if (message.content.toLowerCase().startsWith('?unstick')) {
+			stickyMsg = await Sticky.findOne({
+				channelId: channelId,
+			});
+
 			// fetch sticked message and delete
 			const msgUnstick = await message.channel.messages.fetch(
 				stickyMsg.lastMsgId

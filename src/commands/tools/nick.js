@@ -106,8 +106,6 @@ module.exports = {
 					requestor: interaction.member.id,
 				});
 
-				console.log(hasPending);
-
 				if (!hasPending) {
 					// Embed for Request (Admin)
 					const embed = new EmbedBuilder()
