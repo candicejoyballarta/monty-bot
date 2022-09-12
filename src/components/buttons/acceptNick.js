@@ -35,6 +35,8 @@ module.exports = {
 			await message.guild.members.cache
 				.get(mes.requestor)
 				.setNickname(nick);
+
+			await mes.remove();
 		} catch (error) {
 			console.error(error);
 		}
@@ -64,6 +66,5 @@ module.exports = {
 			});
 
 		message.edit({ embeds: [adminReply], components: [] });
-		setTimeout(() => message.delete(), 5000);
 	},
 };

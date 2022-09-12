@@ -5,36 +5,69 @@ const { PermissionsBitField } = require('discord.js');
 module.exports = {
 	name: 'messageCreate',
 	async execute(message, client) {
-		let count = 0;
 		const maxMsg = 1;
-		let lastStickMsg = '';
+		let lastStickMsg = null;
 		const channelId = message.channelId;
 		const guildId = message.guildId;
 
-		// check if message channel has sticky
-		const stickyMsg = await Sticky.findOne({
+		// check if channel has sticky
+		let stickyMsg = await Sticky.findOne({
 			channelId: channelId,
 		});
 
-		if (stickyMsg) {
+		// if channel has sticky post message
+		if (
+			stickyMsg &&
+			(!message.content.toLowerCase().startsWith('?unstick') ||
+				!message.content.toLowerCase().startsWith('?stick'))
+		) {
 			let stickContent = stickyMsg.stickyContent;
-			count++;
-			if (count === maxMsg) {
-				if (!message.content.toLowerCase().startsWith('?unstick')) {
-					lastStickMsg = await message.channel.messages.fetch(
-						stickyMsg.lastMsgId
-					);
-					await lastStickMsg.delete();
+			// check if the message id is not equal to the sticky in db
+			if (message.id !== stickyMsg.lastMsgId) {
+				// if not equal, then add to counter
+
+				let updateSticky = await Sticky.findOneAndUpdate(
+					{ channelId: channelId },
+					{ $inc: { msgCount: +1 } },
+					{
+						new: true,
+						runValidators: true,
+					}
+				);
+			}
+
+			stickyMsg = await Sticky.findOne({
+				channelId: channelId,
+			});
+
+			// if the count for max msg is reached
+			if (stickyMsg.msgCount >= maxMsg) {
+				// if msg does not start witth unstick
+				if (
+					!message.content.toLowerCase().startsWith('?unstick') ||
+					!message.content.toLowerCase().startsWith('?stick')
+				) {
+					// fetch the last sticky and delete
+					lastStickMsg = await message.channel.messages
+						.fetch(stickyMsg.lastMsgId)
+						.then(async (msg) => {
+							await msg.delete();
+						})
+						.catch((e) => {
+							console.error(e);
+						});
+
+					// send a new sticky msg
 					lastStickMsg = await message.channel.send(stickContent);
-					const updateSticky = await Sticky.findOneAndUpdate(
+					// update the sticky in the database
+					let updateSticky = await Sticky.findOneAndUpdate(
 						{ channelId: channelId },
-						{ lastMsgId: lastStickMsg.id },
+						{ lastMsgId: lastStickMsg.id, msgCount: 0 },
 						{
 							new: true,
 							runValidators: true,
 						}
 					);
-					count = 0;
 				}
 			}
 		}
@@ -78,6 +111,18 @@ module.exports = {
 					});
 
 			try {
+				const stickExist = await Sticky.findOne({
+					channelId: channelId,
+				});
+
+				if (stickExist) {
+					const msgUnstick = await message.channel.messages.fetch(
+						stickExist.lastMsgId
+					);
+					await msgUnstick.delete();
+					await stickExist.remove();
+				}
+
 				lastStickMsg = await message.channel.send(contentToStick);
 				const stickyContent = await Sticky.create({
 					guildId: guildId,

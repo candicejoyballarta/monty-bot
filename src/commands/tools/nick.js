@@ -101,81 +101,96 @@ module.exports = {
 					guildId: interaction.guild.id,
 				});
 				const reqChannel = guildConf.guildNickChannel;
-				// Embed for Request (Admin)
-				const embed = new EmbedBuilder()
-					.setTitle(`Nickname Request`)
-					.addFields([
-						{
-							name: 'Requestor',
-							value: `${user}`,
-							inline: true,
-						},
-					])
-					.addFields([
-						{
-							name: 'Nickname',
-							value: nickname,
-							inline: true,
-						},
-					])
-					.setThumbnail(user.displayAvatarURL())
-					.setColor(0x0099ff)
-					.setTimestamp()
-					.setFooter({
-						text: `${interaction.guild?.name}`,
-					});
-				// Buttons
-				const acceptButton = new ButtonBuilder()
-					.setCustomId('acceptNick')
-					.setLabel('✅ Accept')
-					.setStyle(ButtonStyle.Success);
 
-				const rejectButton = new ButtonBuilder()
-					.setCustomId('rejectNick')
-					.setLabel('❌ Reject')
-					.setStyle(ButtonStyle.Danger);
+				const hasPending = await Nickname.find({
+					requestor: interaction.member.id,
+				});
 
-				// embed for reply (user)
-				const embedReply = new EmbedBuilder()
-					.setTitle(`Nickname Request`)
-					.setDescription(
-						`${user}, your nickname change request has been sent!`
-					)
-					.setColor(0x0099ff)
-					.setTimestamp()
-					.setFooter({
-						text: `${interaction.guild?.name}`,
-					});
+				console.log(hasPending);
 
-				try {
-					const mes = await interaction.reply({
-						embeds: [embedReply],
-						fetchReply: true,
-					});
+				if (!hasPending) {
+					// Embed for Request (Admin)
+					const embed = new EmbedBuilder()
+						.setTitle(`Nickname Request`)
+						.addFields([
+							{
+								name: 'Requestor',
+								value: `${user}`,
+								inline: true,
+							},
+						])
+						.addFields([
+							{
+								name: 'Nickname',
+								value: nickname,
+								inline: true,
+							},
+						])
+						.setThumbnail(user.displayAvatarURL())
+						.setColor(0x0099ff)
+						.setTimestamp()
+						.setFooter({
+							text: `${interaction.guild?.name}`,
+						});
+					// Buttons
+					const acceptButton = new ButtonBuilder()
+						.setCustomId('acceptNick')
+						.setLabel('✅ Accept')
+						.setStyle(ButtonStyle.Success);
 
-					const mesAdmin = await client.channels.cache
-						.get(reqChannel)
-						.send({
-							embeds: [embed],
-							components: [
-								new ActionRowBuilder().addComponents(
-									acceptButton,
-									rejectButton
-								),
-							],
+					const rejectButton = new ButtonBuilder()
+						.setCustomId('rejectNick')
+						.setLabel('❌ Reject')
+						.setStyle(ButtonStyle.Danger);
+
+					// embed for reply (user)
+					const embedReply = new EmbedBuilder()
+						.setTitle(`Nickname Request`)
+						.setDescription(
+							`${user}, your nickname change request has been sent!`
+						)
+						.setColor(0x0099ff)
+						.setTimestamp()
+						.setFooter({
+							text: `${interaction.guild?.name}`,
 						});
 
-					const request = await new Nickname({
-						guildId: interaction.guild.id,
-						requestor: interaction.member.id,
-						nickRequest: nickname,
-						mesRequest: mes.id,
-						mesAdmin: mesAdmin.id,
-					});
+					try {
+						const mes = await interaction.reply({
+							embeds: [embedReply],
+							fetchReply: true,
+						});
 
-					await request.save().catch(console.error);
-				} catch (error) {
-					console.error(error);
+						const mesAdmin = await client.channels.cache
+							.get(reqChannel)
+							.send({
+								embeds: [embed],
+								components: [
+									new ActionRowBuilder().addComponents(
+										acceptButton,
+										rejectButton
+									),
+								],
+							});
+
+						const request = await new Nickname({
+							guildId: interaction.guild.id,
+							requestor: interaction.member.id,
+							nickRequest: nickname,
+							mesRequest: mes.id,
+							mesAdmin: mesAdmin.id,
+						});
+
+						await request.save().catch(console.error);
+					} catch (error) {
+						console.error(error);
+					}
+				} else {
+					return interaction.reply({
+						content:
+							'⛔ You already have a pending nickname request',
+						ephemeral: true,
+					});
 				}
 
 				break;

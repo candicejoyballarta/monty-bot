@@ -31,6 +31,12 @@ module.exports = {
 
 		const requestor = message.guild.members.cache.get(mes.requestor);
 
+		try {
+			await mes.remove();
+		} catch (error) {
+			console.error(error);
+		}
+
 		const adminReply = new EmbedBuilder()
 			.setTitle(`Rejected`)
 			.setDescription('Nickname request has been rejected.')
@@ -56,6 +62,5 @@ module.exports = {
 			});
 
 		message.edit({ embeds: [adminReply], components: [] });
-		setTimeout(() => message.delete(), 5000);
 	},
 };

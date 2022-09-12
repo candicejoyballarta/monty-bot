@@ -5,6 +5,10 @@ const stickySchema = new Schema({
 	channelId: String,
 	stickyContent: String,
 	lastMsgId: String,
+	msgCount: {
+		type: Number,
+		default: 0,
+	},
 });
 
 module.exports = model('Sticky', stickySchema);
