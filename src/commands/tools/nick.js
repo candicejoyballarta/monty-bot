@@ -4,6 +4,7 @@ const {
 	ButtonBuilder,
 	ButtonStyle,
 	EmbedBuilder,
+	PermissionsBitField,
 } = require('discord.js');
 const Guild = require('../../schemas/guild');
 const Nickname = require('../../schemas/nickname');
@@ -40,6 +41,16 @@ module.exports = {
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
 			case 'config':
+				if (
+					!interaction.member.permissions.has(
+						PermissionsBitField.Flags.KickMembers
+					)
+				)
+					return interaction.reply({
+						content: '🚨 Only admins/staff can use this button',
+						ephemeral: true,
+					});
+
 				const channel = interaction.options.getChannel('channel');
 				let guildProfile = await Guild.findOne({
 					guildId: interaction.guild.id,

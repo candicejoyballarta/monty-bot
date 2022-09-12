@@ -36,7 +36,7 @@ module.exports = {
 				.get(mes.requestor)
 				.setNickname(nick);
 		} catch (error) {
-			// console.error(error);
+			console.error(error);
 		}
 
 		const adminReply = new EmbedBuilder()

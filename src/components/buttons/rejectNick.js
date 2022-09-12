@@ -29,9 +29,11 @@ module.exports = {
 			console.error('No data found in the database!');
 		}
 
+		const requestor = message.guild.members.cache.get(mes.requestor);
+
 		const adminReply = new EmbedBuilder()
-			.setTitle(`Accepted`)
-			.setDescription('Nickname request has been accepted.')
+			.setTitle(`Rejected`)
+			.setDescription('Nickname request has been rejected.')
 			.setThumbnail(user.displayAvatarURL())
 			.addFields([
 				{
@@ -42,12 +44,12 @@ module.exports = {
 			])
 			.addFields([
 				{
-					name: 'Approved by',
+					name: 'Rejected by',
 					value: `${user}`,
 					inline: true,
 				},
 			])
-			.setColor(0x2e8b57)
+			.setColor(0xcc0000)
 			.setTimestamp()
 			.setFooter({
 				text: `${interaction.guild?.name}`,
