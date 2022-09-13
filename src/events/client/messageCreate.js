@@ -10,22 +10,24 @@ module.exports = {
 		const channelId = message.channelId;
 		const guildId = message.guildId;
 
+		if (message.content.toLowerCase().startsWith('?divider')) {
+			await message.delete();
+			return message.channel.send({
+				files: [{ attachment: 'https://imgur.com/HJn0vJF.gif' }],
+			});
+		}
+
 		// check if channel has sticky
 		let stickyMsg = await Sticky.findOne({
 			channelId: channelId,
 		});
 
 		// if channel has sticky post message
-		if (
-			stickyMsg &&
-			(!message.content.toLowerCase().startsWith('?unstick') ||
-				!message.content.toLowerCase().startsWith('?stick'))
-		) {
+		if (stickyMsg) {
 			let stickContent = stickyMsg.stickyContent;
 			// check if the message id is not equal to the sticky in db
 			if (message.id !== stickyMsg.lastMsgId) {
 				// if not equal, then add to counter
-
 				let updateSticky = await Sticky.findOneAndUpdate(
 					{ channelId: channelId },
 					{ $inc: { msgCount: +1 } },
@@ -41,7 +43,7 @@ module.exports = {
 			});
 
 			// if the count for max msg is reached
-			if (stickyMsg.msgCount >= maxMsg) {
+			if (stickyMsg.msgCount > maxMsg) {
 				// if msg does not start witth unstick
 				if (
 					!message.content.toLowerCase().startsWith('?unstick') ||
